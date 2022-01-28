@@ -9,7 +9,8 @@ cluster = "localnet"
 wallet = "/home/haile/.config/solana/id.json"
 
 [scripts]
-test = "yarn run mocha -t 1000000 tests/"
+# test = "yarn run mocha -t 1000000 tests/"
+test = "node tests/gif-portal.js"
 
 [test]
 startup_wait = 100000
