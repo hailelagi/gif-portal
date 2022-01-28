@@ -1,17 +1,13 @@
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
-import { checkIfWalletIsConnected } from "./connect"
-import { GifContainer } from "./GifContainer"
+import { createGifAccount, checkIfWalletIsConnected } from "./connect";
 
-// Constants
-const TWITTER_HANDLE = '_buildspace';
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const { solana } = window;
 
 function App() {
   const [walletAddress, setWalletAddress] = useState(null);
-  const [gifList, setGifList] = useState([]);
+  const [gifs, setGifs] = useState([]);
 
   useEffect(() => {
     window.addEventListener('load', async (event) => {
@@ -20,15 +16,25 @@ function App() {
   }, []);
 
   useEffect(() => {
-  if (walletAddress) {
-    console.log('Fetching GIF list...');
-    
-    // Call Solana program here.
+      if (walletAddress) {
+        console.log('Fetching GIF list...');
+        getGifs();
+      };
+  
+    }, [walletAddress]);
 
-    // Set state
-    setGifList([]);
+  async function getGifs(){
+    const gifs = await createGifAccount();
+    setGifs(gifs)
   }
-}, [walletAddress]);
+
+  async function connectWallet() {
+    if (solana) {
+      const response = await solana.connect();
+      console.log('Connected with Public Key:', response.publicKey.toString());
+      setWalletAddress(response.publicKey.toString())
+    };
+  };
 
   function NotConnected() {
     return (
@@ -41,13 +47,56 @@ function App() {
   );
   }
 
-  async function connectWallet() {
-  if (solana) {
-    const response = await solana.connect();
-    console.log('Connected with Public Key:', response.publicKey.toString());
-    setWalletAddress(response.publicKey.toString())
+  function GifContainer() {
+    const [gifLink, setGifLink] = useState('');
+  
+    function onGifLinkChange(event) {
+      const { value } = event.target;
+      setGifLink(value);
+    };
+  
+    async function sendGif() {
+      if (gifLink.length > 0) {
+      console.log('Gif link:', gifLink);
+    } else {
+      console.log('Empty input. Try again.');
+    }
+    };
+
+    if (gifs === null) {
+      return (
+        <div className="connected-container">
+        <button className="cta-button submit-gif-button" onClick={createGifAccount}>
+          Do One-Time Initialization For GIF Program Account
+        </button>
+      </div>
+      );
+    } else {
+    return (
+      <div className="gif-container">
+        <input 
+          type="text"
+          placeholder="Enter gif link!"
+          value={gifLink}
+          onChange={onGifLinkChange}
+         />
+
+        <button 
+        className="cta-button submit-gif-button"
+        onClick={sendGif}
+        >Submit</button>
+
+        <div className="gif-grid">
+        {gifs.map((item, index) => (
+          <div className="gif-item" key={index}>
+            <img src={item.gifLink} alt={item.gifLink} />
+          </div>
+        ))}
+      </div>
+    </div>);
+    }
   };
-};
+  
 
   return (
     <div className="App">
@@ -65,10 +114,10 @@ function App() {
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
           <a
             className="footer-text"
-            href={TWITTER_LINK}
+            href='https://twitter.com/_buildspace'
             target="_blank"
             rel="noreferrer"
-          >{`built on @${TWITTER_HANDLE}`}</a>
+          >{`built on @'_buildspace'`}</a>
         </div>
       </div>
     </div>
