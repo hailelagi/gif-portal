@@ -1,12 +1,17 @@
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
 import idl from "./idl.json";
+import kp from "./keypair.json";
 
 const { solana } = window;
-const { SystemProgram, Keypair } = web3;
+const { SystemProgram } = web3;
 
-let baseAccount = Keypair.generate();
-const programID = new PublicKey(idl.metadata.address);
+const arr = Object.values(kp._keypair.secretKey);
+const secret = new Uint8Array(arr);
+
+export const baseAccount = web3.Keypair.fromSecretKey(secret);
+export const programID = new PublicKey(idl.metadata.address);
+
 const network = clusterApiUrl('devnet');
 const opts = {
   // prefer: finalized
@@ -49,7 +54,7 @@ export async function createGifAccount(){
   }
 }
 
-function getProvider(){
+export function getProvider(){
   const conn = new Connection(network, opts.preflightCommitment)
   const provider = new Provider(
     conn, window.solana, opts.preflightCommitment

@@ -1,7 +1,9 @@
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
-import { createGifAccount, checkIfWalletIsConnected } from "./connect";
+import { baseAccount, programID, getProvider, createGifAccount, checkIfWalletIsConnected } from "./connect";
+import { Program } from '@project-serum/anchor';
+import idl from "./idl.json";
 
 const { solana } = window;
 
@@ -24,8 +26,17 @@ function App() {
     }, [walletAddress]);
 
   async function getGifs(){
-    const gifs = await createGifAccount();
-    setGifs(gifs)
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+      const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+      
+      console.log("Got the account", account)
+      setGifs(account.gifs)
+    } catch (error) {
+      console.log("Error in getGifList: ", error)
+      setGifs(null);
+    }
   }
 
   async function connectWallet() {
@@ -56,12 +67,29 @@ function App() {
     };
   
     async function sendGif() {
-      if (gifLink.length > 0) {
-      console.log('Gif link:', gifLink);
-    } else {
-      console.log('Empty input. Try again.');
+      if (gifLink.length === 0) {
+        console.log("No gif link given")
+        return;
     }
-    };
+    setGifLink("");
+    console.log("gif link", gifLink)
+
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+  
+      await program.rpc.addGif(gifLink, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+
+      await getGifs();
+  } catch (error) {
+    console.log("Error sending GIF:", error)
+  }
+};
 
     if (gifs === null) {
       return (
