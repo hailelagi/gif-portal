@@ -1,11 +1,11 @@
-[programs.localnet]
-gif_portal = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+[programs.devnet]
+gif_portal = "7JrW5FLo4ATEqGKLD4cDYtSGSDsDcgUzUc7xGE4ka15s"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/haile/.config/solana/id.json"
 
 [scripts]
