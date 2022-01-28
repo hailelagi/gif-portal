@@ -43,14 +43,17 @@ async function main() {
   let account = await program.account.baseAccount.fetch(baseAccount.publicKey);
   console.log("Gif count", account.totalGifs.toString())
 
-  await program.rpc.addGif({
+  await program.rpc.addGif("https://giphy.com/gifs/running-muppets-7kn27lnYSAE9O", {
     accounts: {
-      baseAccount: baseAccount.publicKey
+      baseAccount: baseAccount.publicKey,
+      user: provider.wallet.publicKey
     }
   })
 
   account = await program.account.baseAccount.fetch(baseAccount.publicKey)
   console.log("gif state change", account.totalGifs.toString())
+  console.log("gif links", account.gifs)
+  console.log("account", account)
 };
 
 const runMain = async () => {
